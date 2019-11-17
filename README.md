@@ -1,25 +1,56 @@
-# musicbrainzer
+# mbcker
 
 This repository is dockerimage involve musicbrainz database.
 
 ## How to install
 
+### File download
+
+- Create directory
+```
+mkdir src
+cd src
+```
+
+- Clone [mbslave](https://github.com/lalinsky/mbslave)
+
+```
+git clone https://github.com/lalinsky/mbslave.git
+```
+
+
+- Download `mbdump-derived.tar.bz2` and `mbdump.tar.bz2` from http://ftp.musicbrainz.org/pub/musicbrainz/data/fullexport/ and deply `src`
+
+
+- Rename and deploy `src/mbslave/mbslave.conf.default` to `src/mbslave.conf`
+
+- Update `mbslave.conf`, token is your api token, get from https://metabrainz.org/supporters/account-type
+
+
+
 ### Docker
 
 - docker build
 
-``` docker 
-docker build . -t musicbrainzer
-docker run -it -p 5432:5432 --name musicbrainzer musicbrainzer /bin/bash
+``` shell
+docker build . -t mbcker
+docker run -it -p 5440:5432 --name mbcker mbcker /bin/bash
 ```
 
 ### PostgreSql
-- User setting
+- User setting1
 
 ``` shell
 /etc/init.d/postgresql start
 sudo su - postgres
-createuser musicbrainz -P 
+createuser musicbrainz -P
+```
+- Set password
+
+   - You sholud enter password 2 times, set by mbslave.conf
+
+- Create tabel
+```shell
 createdb -l C -E UTF-8 -T template0 -O musicbrainz musicbrainz
 psql musicbrainz -c 'CREATE EXTENSION cube;'
 psql musicbrainz -c 'CREATE EXTENSION earthdistance;'
@@ -78,13 +109,19 @@ echo 'CREATE SCHEMA documentation;' | ./mbslave-psql.py -S
 ./mbslave-remap-schema.py <sql/CreateFunctions.sql | ./mbslave-psql.py
 ```
 
-#login
 
+## Use
+
+### Container and DB start
+
+```shell
+docker start mbcker
+docker exec -it mbcker bin/sh
+/etc/init.d/postgresql start
+```
+
+### DB login
+
+```login
 psql -h localhost -p 5432 -U musicbrainz
-
-
-#コンテナ再スタート時
-
-- docker exec -it musicbrainzer bin/sh
-- /etc/init.d/postgresql start
-そしてつなぐ
+```
