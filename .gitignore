@@ -1,4 +1,6 @@
 .DS_Store
 /analysis/
-/src/
+/src/mbslave/
+/src/mbdump-derived.tar.bz2
+/src/mbdump.tar.bz2
 /my_setting/

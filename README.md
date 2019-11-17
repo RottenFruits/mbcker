@@ -5,28 +5,15 @@ This repository is dockerimage involve musicbrainz database.
 ## How to install
 
 ### File download
-
-- Create directory
-```
-mkdir src
-cd src
-```
-
 - Clone [mbslave](https://github.com/lalinsky/mbslave)
 
 ```
+cd src
 git clone https://github.com/lalinsky/mbslave.git
 ```
 
 
 - Download `mbdump-derived.tar.bz2` and `mbdump.tar.bz2` from http://ftp.musicbrainz.org/pub/musicbrainz/data/fullexport/ and deply `src`
-
-
-- Rename and deploy `src/mbslave/mbslave.conf.default` to `src/mbslave.conf`
-
-- Update `mbslave.conf`, token is your api token, get from https://metabrainz.org/supporters/account-type
-
-
 
 ### Docker
 
