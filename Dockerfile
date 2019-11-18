@@ -25,7 +25,7 @@ RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER musicbrainz WITH SUPERUSER PASSWORD 'pass';" &&\
     createdb -l C -E UTF-8 -T template0 -O musicbrainz musicbrainz &&\
     psql musicbrainz -c 'CREATE EXTENSION cube;' &&\
-    psql musicbrainz -c 'CREATE EXTENSION earthdistance;' 
+    psql musicbrainz -c 'CREATE EXTENSION earthdistance;'
 
 #Access setting
 RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/10/main/postgresql.conf &&\
@@ -34,6 +34,8 @@ RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/post
     sed -i "$ a host all all 0.0.0.0/0 trust" /etc/postgresql/10/main/pg_hba.conf
 
 #Prepare empty schemas for the MusicBrainz database and create the table structure
+#Data import
+#Setup primary keys, indexes and views
 USER root
 WORKDIR /mbslave/
 RUN /etc/init.d/postgresql start &&\
@@ -46,14 +48,8 @@ RUN /etc/init.d/postgresql start &&\
     ./mbslave-remap-schema.py <sql/statistics/CreateTables.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/caa/CreateTables.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/wikidocs/CreateTables.sql | ./mbslave-psql.py &&\
-    ./mbslave-remap-schema.py <sql/documentation/CreateTables.sql | ./mbslave-psql.py
-
-#Data import
-RUN /etc/init.d/postgresql start &&\
-    ./mbslave-import.py mbdump.tar.bz2 mbdump-derived.tar.bz2
-
-#Setup primary keys, indexes and views
-RUN /etc/init.d/postgresql start &&\
+    ./mbslave-remap-schema.py <sql/documentation/CreateTables.sql | ./mbslave-psql.py &&\
+    ./mbslave-import.py mbdump.tar.bz2 mbdump-derived.tar.bz2 &&\
     ./mbslave-remap-schema.py <sql/CreatePrimaryKeys.sql | ./mbslave-psql.py &&\ 
     ./mbslave-remap-schema.py <sql/statistics/CreatePrimaryKeys.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/caa/CreatePrimaryKeys.sql | ./mbslave-psql.py &&\
@@ -67,3 +63,5 @@ RUN /etc/init.d/postgresql start &&\
     ./mbslave-remap-schema.py <sql/CreateFunctions.sql | ./mbslave-psql.py
 
 EXPOSE 5432
+
+CMD ['sudo', 'service', 'postgresql', 'start']
