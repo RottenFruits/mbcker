@@ -19,6 +19,8 @@ COPY src/mbslave.conf /mbslave
 COPY src/mbdump-derived.tar.bz2 /mbslave
 COPY src/mbdump.tar.bz2 /mbslave
 
+RUN chmod -R +x mbslave
+
 #postgresql
 USER postgres
 RUN /etc/init.d/postgresql start &&\
@@ -36,9 +38,9 @@ RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/post
 #Prepare empty schemas for the MusicBrainz database and create the table structure
 #Data import
 #Setup primary keys, indexes and views
-USER root
+#USER root
 WORKDIR /mbslave/
-RUN /etc/init.d/postgresql start &&\
+RUN /etc/init.d/postgresql restart &&\
     echo 'CREATE SCHEMA musicbrainz;' | ./mbslave-psql.py -S &&\
     echo 'CREATE SCHEMA statistics;' | ./mbslave-psql.py -S &&\
     echo 'CREATE SCHEMA cover_art_archive;' | ./mbslave-psql.py -S &&\
@@ -48,7 +50,9 @@ RUN /etc/init.d/postgresql start &&\
     ./mbslave-remap-schema.py <sql/statistics/CreateTables.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/caa/CreateTables.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/wikidocs/CreateTables.sql | ./mbslave-psql.py &&\
-    ./mbslave-remap-schema.py <sql/documentation/CreateTables.sql | ./mbslave-psql.py &&\
+    ./mbslave-remap-schema.py <sql/documentation/CreateTables.sql | ./mbslave-psql.py
+
+RUN /etc/init.d/postgresql restart &&\
     ./mbslave-import.py mbdump.tar.bz2 mbdump-derived.tar.bz2 &&\
     ./mbslave-remap-schema.py <sql/CreatePrimaryKeys.sql | ./mbslave-psql.py &&\ 
     ./mbslave-remap-schema.py <sql/statistics/CreatePrimaryKeys.sql | ./mbslave-psql.py &&\
@@ -60,8 +64,9 @@ RUN /etc/init.d/postgresql start &&\
     ./mbslave-remap-schema.py <sql/statistics/CreateIndexes.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/caa/CreateIndexes.sql | ./mbslave-psql.py &&\
     ./mbslave-remap-schema.py <sql/CreateViews.sql | ./mbslave-psql.py &&\
-    ./mbslave-remap-schema.py <sql/CreateFunctions.sql | ./mbslave-psql.py
+    ./mbslave-remap-schema.py <sql/CreateFunctions.sql | ./mbslave-psql.py &&\
+    /etc/init.d/postgresql stop
+
+USER root
 
 EXPOSE 5432
-
-CMD ['sudo', 'service', 'postgresql', 'start']
