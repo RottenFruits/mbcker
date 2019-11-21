@@ -17,7 +17,7 @@ git clone https://github.com/lalinsky/mbslave.git
 
 ### Docker
 
-- docker build
+- build and run
 
 ``` shell
 docker build . -t mbcker
@@ -26,13 +26,13 @@ docker run -it -p 5440:5432 --name mbcker mbcker /bin/bash
 
 ### DB
 
-- DB start
+- start
 
 ```shell
 /etc/init.d/postgresql start
 ```
 
-- DB login
+- login
 
 ```shell
 psql -h localhost -p 5432 -U musicbrainz
