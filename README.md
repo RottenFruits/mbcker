@@ -1,6 +1,6 @@
 # mbcker
 
-This repository is dockerimage involve musicbrainz database.
+This repository is dockerimage involve [musicbrainz](https://musicbrainz.org/) database.
 
 ## How to install
 
