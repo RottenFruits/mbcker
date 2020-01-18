@@ -4,7 +4,16 @@ This repository is dockerimage involve [musicbrainz](https://musicbrainz.org/) d
 
 ## How to install
 
-### File download
+### Clone this repository
+- Clone this repository
+
+```
+git clone https://github.com/RottenFruits/mbcker.git
+cd mbcker
+```
+
+
+### Extra file download
 - Clone [mbslave](https://github.com/lalinsky/mbslave)
 
 ```
